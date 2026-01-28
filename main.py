@@ -24,6 +24,10 @@ st.markdown("""
         box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         margin-bottom: 20px;
     }
+    .year-view.calendar-container {
+        padding: 10px;
+        margin-bottom: 15px;
+    }
     .month-header {
         text-align: center;
         font-size: 24px;
@@ -49,10 +53,17 @@ st.markdown("""
         background-color: #ecf0f1;
         border-radius: 5px;
     }
+    .year-view .day-name {
+        padding: 5px;
+        font-size: 11px;
+    }
     .calendar-grid {
         display: grid;
         grid-template-columns: repeat(7, 1fr);
         gap: 5px;
+    }
+    .year-view .calendar-grid {
+        gap: 3px;
     }
     .day-cell {
         aspect-ratio: 1;
@@ -62,10 +73,25 @@ st.markdown("""
         justify-content: center;
         border: 1px solid #e0e0e0;
         border-radius: 8px;
-        padding: 10px;
+        padding: 5px;
         background-color: white;
         transition: all 0.3s;
-        min-height: 80px;
+        min-height: 60px;
+        font-size: 12px;
+    }
+    .year-view .day-cell {
+        min-height: 50px;
+        padding: 3px;
+    }
+    .year-view .day-number {
+        font-size: 14px !important;
+    }
+    .year-view .holiday-name {
+        font-size: 8px !important;
+    }
+    .year-view .month-header {
+        font-size: 18px !important;
+        padding: 10px !important;
     }
     .day-cell:hover {
         transform: translateY(-2px);
@@ -135,12 +161,13 @@ def get_holidays(year):
         st.error(f"Error mengambil data libur: {e}")
         return {}
 
-def generate_calendar_html(year, month, holidays, today):
+def generate_calendar_html(year, month, holidays, today, is_year_view=False):
     """Generate HTML untuk kalender bulanan"""
     cal = calendar.monthcalendar(year, month)
     month_name = calendar.month_name[month]
     
-    html = f'<div class="calendar-container">'
+    container_class = 'calendar-container year-view' if is_year_view else 'calendar-container'
+    html = f'<div class="{container_class}">'
     html += f'<div class="month-header">{month_name} {year}</div>'
     
     # Header hari
@@ -235,17 +262,17 @@ today = date.today()
 if view_option == "Seluruh Tahun":
     st.subheader(f"Kalender Tahun {selected_year}")
     
-    # Buat 3 kolom untuk menampilkan 3 bulan per baris
+    # Buat 4 baris dengan 3 kolom untuk menampilkan semua bulan
     for row in range(4):
         cols = st.columns(3)
         for col_idx in range(3):
             month = row * 3 + col_idx + 1
             with cols[col_idx]:
-                calendar_html = generate_calendar_html(selected_year, month, holidays, today)
+                calendar_html = generate_calendar_html(selected_year, month, holidays, today, is_year_view=True)
                 st.markdown(calendar_html, unsafe_allow_html=True)
 else:
     # Tampilkan bulan tunggal dengan ukuran lebih besar
-    calendar_html = generate_calendar_html(selected_year, selected_month, holidays, today)
+    calendar_html = generate_calendar_html(selected_year, selected_month, holidays, today, is_year_view=False)
     st.markdown(calendar_html, unsafe_allow_html=True)
 
 # Daftar hari libur
